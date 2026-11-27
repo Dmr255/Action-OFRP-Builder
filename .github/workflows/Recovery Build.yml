@@ -119,6 +119,7 @@ jobs:
         rm -rf vendor/recovery
         git clone --recurse-submodules https://gitlab.com/OrangeFox/vendor/recovery.git vendor/recovery
         cd vendor/recovery && git checkout b74e8baa5b19 && git submodule update --init --recursive && cd ../..
+        sed -i "1a FOX_BUILD_BASH=0" vendor/recovery/OrangeFox.sh
         ls -al vendor/recovery/OrangeFox.sh
       working-directory: ${{ steps.pwd.outputs.workspace-folder }}
 
