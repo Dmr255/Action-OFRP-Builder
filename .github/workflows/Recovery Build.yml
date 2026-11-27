@@ -73,10 +73,11 @@ jobs:
         sudo ln -sf /lib/x86_64-linux-gnu/libtinfo.so.6 /lib/x86_64-linux-gnu/libtinfo.so.5
         sudo ldconfig
         cd /tmp
-        for p in libpython2.7-minimal python2.7-minimal libpython2.7-stdlib python2.7-stdlib libpython2.7 python2.7; do
+        for p in libpython2.7-minimal python2.7-minimal libpython2.7-stdlib libpython2.7 python2.7; do
           curl -LO http://archive.ubuntu.com/ubuntu/pool/universe/p/python2.7/${p}_2.7.18-13ubuntu1.5_amd64.deb
         done
-        sudo dpkg -i libpython2.7-minimal_2.7.18-13ubuntu1.5_amd64.deb python2.7-minimal_2.7.18-13ubuntu1.5_amd64.deb libpython2.7-stdlib_2.7.18-13ubuntu1.5_amd64.deb python2.7-stdlib_2.7.18-13ubuntu1.5_amd64.deb libpython2.7_2.7.18-13ubuntu1.5_amd64.deb python2.7_2.7.18-13ubuntu1.5_amd64.deb
+        sudo apt install -y libnsl2
+        sudo dpkg -i libpython2.7-minimal_2.7.18-13ubuntu1.5_amd64.deb python2.7-minimal_2.7.18-13ubuntu1.5_amd64.deb libpython2.7-stdlib_2.7.18-13ubuntu1.5_amd64.deb libpython2.7_2.7.18-13ubuntu1.5_amd64.deb python2.7_2.7.18-13ubuntu1.5_amd64.deb
         sudo ln -sf /usr/bin/python2 /usr/bin/python
         python --version
         git clone https://gitlab.com/OrangeFox/misc/scripts
