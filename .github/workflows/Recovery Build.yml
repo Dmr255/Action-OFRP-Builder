@@ -126,6 +126,9 @@ jobs:
     - name: Building recovery
       run: |
         cd ${{ steps.pwd.outputs.workspace-folder }}/fox_${{ github.event.inputs.MANIFEST_BRANCH }}
+        head -n 26 build/make/tools/check_radio_versions.py > /tmp/check_radio_versions.py
+        mv /tmp/check_radio_versions.py build/make/tools/check_radio_versions.py
+        chmod +x build/make/tools/check_radio_versions.py
         set +e
         source build/envsetup.sh
         export ALLOW_MISSING_DEPENDENCIES=true
