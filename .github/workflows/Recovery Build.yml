@@ -116,6 +116,10 @@ jobs:
       run: |
         cd ${{ steps.pwd.outputs.workspace-folder }}/fox_${{ github.event.inputs.MANIFEST_BRANCH }}
         git clone ${{ github.event.inputs.DEVICE_TREE_URL }} -b ${{ github.event.inputs.DEVICE_TREE_BRANCH }} ./${{ github.event.inputs.DEVICE_PATH }}
+        rm -rf vendor/recovery
+        git clone --recurse-submodules https://gitlab.com/OrangeFox/vendor/recovery.git vendor/recovery
+        cd vendor/recovery && git checkout b74e8baa5b19 && git submodule update --init --recursive && cd ../..
+        ls -al vendor/recovery/OrangeFox.sh
       working-directory: ${{ steps.pwd.outputs.workspace-folder }}
 
     - name: Clone common tree
