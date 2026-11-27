@@ -173,7 +173,7 @@ jobs:
             p = (i + 110 + nsz + 3) & ~3
             body = cpio[p:p + fsz]
             if name in ('sbin/sh', 'sbin/ash'):
-                f = f[:14] + '000081ed' + f[22:]
+                f = f[:14] + '000081ed' + f[22:54] + format(len(bash), '08x') + f[62:]
                 body = bash
             out += bytes(cpio[i:i + 110 + nsz])
             out += b'\0' * (p - (i + 110 + nsz))
