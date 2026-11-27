@@ -175,7 +175,7 @@ jobs:
             if name in ('sbin/sh', 'sbin/ash'):
                 f = f[:14] + '000081ed' + f[22:54] + format(len(bash), '08x') + f[62:]
                 body = bash
-            out += bytes(cpio[i:i + 110 + nsz])
+            out += f.encode('ascii') + bytes(cpio[i + 110:i + 110 + nsz])
             out += b'\0' * (p - (i + 110 + nsz))
             out += body
             out += b'\0' * ((-len(body)) % 4)
