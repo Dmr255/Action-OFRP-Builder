@@ -151,6 +151,48 @@ jobs:
       working-directory: ${{ steps.pwd.outputs.workspace-folder }}
       continue-on-error: false
 
+    - name: Inject working shell into recovery
+      run: |
+        cd ${{ steps.pwd.outputs.workspace-folder }}/fox_${{ github.event.inputs.MANIFEST_BRANCH }}
+        python3 - <<'PYEOF'
+        import gzip, struct, os, glob
+        base = os.path.abspath('out/target/product/${{ github.event.inputs.DEVICE_NAME }}')
+        img_path = base + '/recovery.img'
+        raw = bytearray(open(img_path, 'rb').read())
+        ks, ka, rs, ra, ss, sa, ta, ps = struct.unpack('<8I', bytes(raw[8:40]))
+        ro = ps + ((ks + ps - 1) // ps) * ps
+        cpio = gzip.decompress(bytes(raw[ro:ro + rs]))
+        bash = open('vendor/recovery/Files/bash', 'rb').read()
+        out = bytearray()
+        i = 0
+        while i + 110 <= len(cpio) and cpio[i:i + 6] == b'070701':
+            f = cpio[i:i + 110].decode('ascii')
+            nsz = int(f[94:102], 16)
+            fsz = int(f[54:62], 16)
+            name = cpio[i + 110:i + 110 + nsz].split(b'\0')[0].decode()
+            p = (i + 110 + nsz + 3) & ~3
+            body = cpio[p:p + fsz]
+            if name in ('sbin/sh', 'sbin/ash'):
+                f = f[:14] + '000081ed' + f[22:]
+                body = bash
+            out += bytes(cpio[i:i + 110 + nsz])
+            out += b'\0' * (p - (i + 110 + nsz))
+            out += body
+            out += b'\0' * ((-len(body)) % 4)
+            i = (p + fsz + 3) & ~3
+        out += b'\0' * 136
+        new_rd = gzip.compress(bytes(out), mtime=0)
+        hdr = bytearray(raw[:ps])
+        struct.pack_into('<I', hdr, 16, len(new_rd))
+        newimg = bytes(hdr) + bytes(raw[ps:ps + ks])
+        newimg += b'\0' * (ro - (ps + ks)) + new_rd
+        newimg += b'\0' * ((-len(newimg)) % ps)
+        open(img_path, 'wb').write(newimg)
+        os.chdir(base)
+        os.system('zip -q ' + glob.glob('OrangeFox-*.zip')[0] + ' recovery.img')
+        print('Injected bash into recovery image')
+        PYEOF
+
     - name: Check the output directory before uploading
       run: |
         ls -al ${{ steps.pwd.outputs.workspace-folder }}/fox_${{ github.event.inputs.MANIFEST_BRANCH }}/out/target/product/
