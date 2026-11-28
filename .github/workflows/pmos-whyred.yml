@@ -1,0 +1,49 @@
+name: Build Nura (pmOS) whyred
+on:
+  workflow_dispatch:
+    inputs:
+      ui:
+        description: 'UI package'
+        required: true
+        default: 'xfce4'
+      channel:
+        description: 'Channel'
+        required: true
+        default: 'edge'
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build recovery zip
+        env:
+          UI: ${{ github.event.inputs.ui }}
+          CHANNEL: ${{ github.event.inputs.channel }}
+        run: |
+          docker run --privileged --rm \
+            -e UI="$UI" -e CHANNEL="$CHANNEL" \
+            -v "$PWD:/work" -w /work alpine:latest sh -c '
+              set -ex
+              apk add --no-cache git python3 py3-pip qemu-aarch64-static
+              python3 -m pip install --break-system-packages --no-cache-dir pmbootstrap
+              mkdir -p /work/pmos-work
+              printf "8\n" > /work/pmos-work/version
+              pmbootstrap -w /work/pmos-work config device xiaomi-whyred
+              pmbootstrap -w /work/pmos-work config ui "$UI"
+              pmbootstrap -w /work/pmos-work config channel "$CHANNEL"
+              pmbootstrap -w /work/pmos-work config user user
+              pmbootstrap -w /work/pmos-work status
+              pmbootstrap -w /work/pmos-work install --android-recovery-zip --password 147147 --no-firewall
+              cp /work/pmos-work/chroot_buildroot_aarch64/var/lib/postmarketos-android-recovery-installer/pmos-*.zip /work/pmos-whyred.zip
+            '
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="pmos-whyred-$(date -u +%Y%m%d%H%M)"
+          gh release create "$TAG" pmos-whyred.zip \
+            --title "Nura/pmOS whyred ($UI)" \
+            --notes "Device: xiaomi-whyred | UI: $UI | Channel: $CHANNEL. Flash from OrangeFox recovery."
