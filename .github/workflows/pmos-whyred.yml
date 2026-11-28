@@ -32,12 +32,12 @@ jobs:
               ln -s /work/pmbootstrap/pmbootstrap.py /usr/local/bin/pmbootstrap
               mkdir -p /work/pmos-work
               printf "8\n" > /work/pmos-work/version
-              pmbootstrap -w /work/pmos-work config device xiaomi-whyred
-              pmbootstrap -w /work/pmos-work config ui "$UI"
-              pmbootstrap -w /work/pmos-work config channel "$CHANNEL"
-              pmbootstrap -w /work/pmos-work config user user
-              pmbootstrap -w /work/pmos-work status
-              pmbootstrap -w /work/pmos-work install --android-recovery-zip --password 147147 --no-firewall
+              pmbootstrap --as-root -w /work/pmos-work config device xiaomi-whyred
+              pmbootstrap --as-root -w /work/pmos-work config ui "$UI"
+              pmbootstrap --as-root -w /work/pmos-work config channel "$CHANNEL"
+              pmbootstrap --as-root -w /work/pmos-work config user user
+              pmbootstrap --as-root -w /work/pmos-work status
+              pmbootstrap --as-root -w /work/pmos-work install --android-recovery-zip --password 147147 --no-firewall
               cp /work/pmos-work/chroot_buildroot_aarch64/var/lib/postmarketos-android-recovery-installer/pmos-*.zip /work/pmos-whyred.zip
             '
       - name: Publish release
