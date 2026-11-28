@@ -30,14 +30,12 @@ jobs:
               apk add --no-cache git python3 py3-pip kpartx openssl util-linux
               git clone --depth=1 https://gitlab.postmarketos.org/postmarketOS/pmbootstrap.git /work/pmbootstrap
               ln -s /work/pmbootstrap/pmbootstrap.py /usr/local/bin/pmbootstrap
-              mkdir -p /work/pmos-work
+              export XDG_CONFIG_HOME=/work/.config
+              mkdir -p /work/.config /work/pmos-work
               printf "8\n" > /work/pmos-work/version
-              pmbootstrap --as-root -w /work/pmos-work config device xiaomi-whyred
-              pmbootstrap --as-root -w /work/pmos-work config ui "$UI"
-              pmbootstrap --as-root -w /work/pmos-work config channel "$CHANNEL"
-              pmbootstrap --as-root -w /work/pmos-work config user user
-              pmbootstrap --as-root -w /work/pmos-work status
-              pmbootstrap --as-root -w /work/pmos-work install --android-recovery-zip --password 147147 --no-firewall
+              printf '[pmbootstrap]\nwork = /work/pmos-work\ndevice = xiaomi-whyred\nui = xfce4\nuser = user\n' > /work/.config/pmbootstrap_v3.cfg
+              pmbootstrap --as-root status
+              pmbootstrap --as-root install --android-recovery-zip --password 147147 --no-firewall
               cp /work/pmos-work/chroot_buildroot_aarch64/var/lib/postmarketos-android-recovery-installer/pmos-*.zip /work/pmos-whyred.zip
             '
       - name: Publish release
