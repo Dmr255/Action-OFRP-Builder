@@ -25,25 +25,22 @@ jobs:
         run: |
           docker run --privileged --rm \
             -e UI="$UI" -e CHANNEL="$CHANNEL" \
-            -v "$PWD:/work" -w /work alpine:latest bash -s <<'EOS'
-          set -ex
-          apk add --no-cache bash git python3 py3-pip kpartx openssl util-linux
-          git clone --depth=1 https://gitlab.postmarketos.org/postmarketOS/pmbootstrap.git /work/pmbootstrap
-          ln -s /work/pmbootstrap/pmbootstrap.py /usr/local/bin/pmbootstrap
-          export XDG_CONFIG_HOME=/work/.config
-          mkdir -p /work/.config /work/pmos-work
-          printf "8\n" > /work/pmos-work/version
-          printf '[pmbootstrap]\nwork = /work/pmos-work\ndevice = xiaomi-whyred\nui = xfce4\nuser = user\n' > /work/.config/pmbootstrap_v3.cfg
-          pmbootstrap --as-root status
-          pmbootstrap --as-root install --android-recovery-zip --password 147147 --no-firewall
-          cp /work/pmos-work/chroot_buildroot_aarch64/var/lib/postmarketos-android-recovery-installer/pmos-*.zip /work/pmos-whyred.zip
-          ls -lh /work/pmos-whyred.zip
-          EOS
+            -v "$PWD:/work" -w /work alpine:latest sh -c '
+              set -ex
+              apk add --no-cache git python3 py3-pip kpartx openssl util-linux
+              git clone --depth=1 https://gitlab.postmarketos.org/postmarketOS/pmbootstrap.git /work/pmbootstrap
+              ln -s /work/pmbootstrap/pmbootstrap.py /usr/local/bin/pmbootstrap
+              export XDG_CONFIG_HOME=/work/.config
+              mkdir -p /work/.config /work/pmos-work
+              printf "8\n" > /work/pmos-work/version
+              printf '[pmbootstrap]\nwork = /work/pmos-work\ndevice = xiaomi-whyred\nui = xfce4\nuser = user\n' > /work/.config/pmbootstrap_v3.cfg
+              pmbootstrap --as-root status
+              pmbootstrap --as-root install --android-recovery-zip --password 147147 --no-firewall
+              cp /work/pmos-work/chroot_buildroot_aarch64/var/lib/postmarketos-android-recovery-installer/pmos-*.zip /work/pmos-whyred.zip
+            '
       - name: Publish release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          UI: ${{ github.event.inputs.ui }}
-          CHANNEL: ${{ github.event.inputs.channel }}
         run: |
           TAG="pmos-whyred-$(date -u +%Y%m%d%H%M)"
           gh release create "$TAG" pmos-whyred.zip \
