@@ -33,10 +33,11 @@ jobs:
               export XDG_CONFIG_HOME=/work/.config
               mkdir -p /work/.config /work/pmos-work
               printf "8\n" > /work/pmos-work/version
-              printf '[pmbootstrap]\nwork = /work/pmos-work\ndevice = xiaomi-whyred\nui = xfce4\nuser = user\n' > /work/.config/pmbootstrap_v3.cfg
+              printf "[pmbootstrap]\nwork = /work/pmos-work\ndevice = xiaomi-whyred\nui = xfce4\nuser = user\n" > /work/.config/pmbootstrap_v3.cfg
               pmbootstrap --as-root status
               pmbootstrap --as-root install --android-recovery-zip --password 147147 --no-firewall
               cp /work/pmos-work/chroot_buildroot_aarch64/var/lib/postmarketos-android-recovery-installer/pmos-*.zip /work/pmos-whyred.zip
+              ls -lh /work/pmos-whyred.zip
             '
       - name: Publish release
         env:
