@@ -37,7 +37,6 @@ jobs:
               pmbootstrap --as-root status
               pmbootstrap --as-root install --android-recovery-zip --password 147147 --no-firewall
               cp /work/pmos-work/chroot_buildroot_aarch64/var/lib/postmarketos-android-recovery-installer/pmos-*.zip /work/pmos-whyred.zip
-              ls -lh /work/pmos-whyred.zip
             '
       - name: Publish release
         env:
