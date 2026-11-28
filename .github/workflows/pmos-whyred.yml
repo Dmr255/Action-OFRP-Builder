@@ -27,7 +27,7 @@ jobs:
             -e UI="$UI" -e CHANNEL="$CHANNEL" \
             -v "$PWD:/work" -w /work alpine:latest sh -c '
               set -ex
-              apk add --no-cache git python3 py3-pip qemu-aarch64-static
+              apk add --no-cache git python3 py3-pip
               python3 -m pip install --break-system-packages --no-cache-dir pmbootstrap
               mkdir -p /work/pmos-work
               printf "8\n" > /work/pmos-work/version
